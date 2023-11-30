@@ -19,6 +19,7 @@ import * as Animatable from 'react-native-animatable';
 import { useForm, Controller } from 'react-hook-form';
 import DatePicker, {getFormatedDate} from "react-native-modern-datepicker";
 import {useState} from "react";
+import api from "../../services/apiCEP";
 
 
 export default function Register() {
@@ -49,6 +50,17 @@ export default function Register() {
         setDate(formatedDate);
 
         setValue('birthday', formatedDate);
+    }
+
+    async function cep(propCEP){
+
+        try {
+            const response = await api.get(`${propCEP}/json`)
+            setValue('city', response.data.localidade)
+            setValue('UF', response.data.uf)
+        }catch (e){
+            console.log('erro'+ e)
+        }
     }
 
     return (
@@ -180,53 +192,6 @@ export default function Register() {
                             </View>
                         </Modal>
 
-                        <View style={styles.formData}>
-                            <Controller
-                                control={control}
-                                name="day"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        placeholder="Dia"
-                                        placeholderTextColor={'gray'}
-                                        style={styles.btninput}
-                                        onChangeText={onChange}
-                                        onBlur={onBlur} // chamado quando o Textinput é tocado
-                                        value={value}
-                                    />
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="month"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        placeholder="Mês"
-                                        placeholderTextColor={'gray'}
-                                        style={[styles.btninput, styles.mes]}
-                                        onChangeText={onChange}
-                                        onBlur={onBlur} // chamado quando o Textinput é tocado
-                                        value={value}
-                                    />
-                                )}
-                            />
-
-                            <Controller
-                                control={control}
-                                name="year"
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        placeholder="Ano"
-                                        placeholderTextColor={'gray'}
-                                        style={styles.btninput}
-                                        onChangeText={onChange}
-                                        onBlur={onBlur} // chamado quando o Textinput é tocado
-                                        value={value}
-                                    />
-                                )}
-                            />
-                        </View>
-
                         <View style={styles.formPersonal}>
                             <Controller
                                 control={control}
@@ -270,7 +235,10 @@ export default function Register() {
                                         placeholderTextColor={'gray'}
                                         style={[styles.btninput, styles.adress]}
                                         onChangeText={onChange}
-                                        onBlur={onBlur} // chamado quando o Textinput é tocado
+                                        onBlur={()=> {
+                                            onBlur();
+                                            cep(value);
+                                        }} // chamado quando o Textinput é tocado
                                         value={value}
                                     />
                                 )}
